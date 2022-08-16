@@ -65,6 +65,14 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
 
 void Snake::GrowBody() { growing = true; }
 
+void Snake::CutBody() {
+  growing = true;
+  // cut snake length in half as reward for finding the treasure
+  body.erase(body.begin(), body.begin() + ((body.size() / 2) - 1));
+  // body.resize(body.size()/2);
+  size -= body.size()/2;
+}
+
 // Inefficient method to check if cell is occupied by snake.
 bool Snake::SnakeCell(int x, int y) {
   if (x == static_cast<int>(head_x) && y == static_cast<int>(head_y)) {

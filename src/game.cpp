@@ -1,13 +1,32 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
+#include <thread>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)) {
+      random_h(0, static_cast<int>(grid_height - 1)),
+      treasure(nullptr) {
   PlaceFood();
+  //PlaceTreasure();
+}
+
+Game::~Game() {
+  if(treasure != nullptr) // delete any dynamic memory to avoid memory leaks
+    {
+        delete treasure;
+        treasure = nullptr;
+    }
+}
+
+void Game::DeleteTreasure() {
+  if(treasure != nullptr) // delete any dynamically allocated memory during gameplay
+    {
+        delete treasure;
+        treasure = nullptr;
+    }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -18,14 +37,47 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
+  std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+  // init stop watch
+  lastUpdate = std::chrono::system_clock::now();
 
   while (running) {
     frame_start = SDL_GetTicks();
 
-    // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
-    Update();
-    renderer.Render(snake, food);
+    //every 3 seconds, place some treasure
+    long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+    
+    if (timeSinceLastUpdate >= 3000 && treasure == nullptr) { // spawn tresaure and notify game
+      SpawnTreasure();
+    }
+    /*
+    else if (timeSinceLastUpdate >= 3000 && treasure->CheckTreasure() == false) {
+      treasure->SetTreasure(true);
+      treasure->SetLife();
+      treasure->SetValue();
+    }
+    */
+
+    if (treasure != nullptr && treasure->CheckTreasure() == true) {
+      //check if treasure's life has timed out
+      long treasure_life = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - treasure->GetLife()).count();
+      if (treasure_life <= 0) {
+        // treasure->SetTreasure(false);
+        DeleteTreasure();
+      }
+      else {
+      // Input, Update, Render - the main game loop.
+      controller.HandleInput(running, snake);
+      Update();
+      renderer.Render(snake, food, treasure->GetCoord()); //use overloaded Render func
+      }
+    }
+    else {
+      // Input, Update, Render - the main game loop.
+      controller.HandleInput(running, snake);
+      Update();
+      renderer.Render(snake, food);
+    }
 
     frame_end = SDL_GetTicks();
 
@@ -65,6 +117,38 @@ void Game::PlaceFood() {
   }
 }
 
+void Game::SpawnTreasure() {
+  int x, y;
+  while (true) {
+    x = random_w(engine);
+    y = random_h(engine);
+    // Check that the location is not occupied by a snake item or food before placing
+    // treasure. If clear, spin up Treasure object on the heap
+    if (!snake.SnakeCell(x, y) && (x != food.x && y !=food.y)) {
+      treasure = new Treasure(x, y);
+      return; // note: in Udpate function, must check life of treasure, see if
+      // if it needs to be removed
+    }
+  }
+}
+
+/*
+void Game::PlaceTreasure() {
+  int x, y;
+  while (treasure->CheckTreasure()) {
+    x = random_w(engine);
+    y = random_h(engine);
+    // Check that the location is not occupied by a snake item or food before placing
+    // treasure. If clear, spin up Treasure object on the heap
+    if (!snake.SnakeCell(x, y) && (x != food.x && y !=food.y)) {
+      treasure = new Treasure(x, y);
+      return; // note: in Udpate function, must check life of treasure, see if
+      // if it needs to be removed
+    }
+  }
+}
+*/
+
 void Game::Update() {
   if (!snake.alive) return;
 
@@ -80,6 +164,16 @@ void Game::Update() {
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
+  }
+
+  // Check if treasure exists, and if so, did snake catch the treasure
+  if (treasure != nullptr && treasure->CheckTreasure() == true) { // might not be necessary since already checked in Game::Run
+      if (treasure->GetCoord().x == new_x && treasure->GetCoord().y == new_y) {
+        score += treasure->GetValue();
+        //treasure->SetTreasure(false); // signal to remove treasure from game board
+        DeleteTreasure();
+        snake.CutBody(); // cut snake body in half as reward
+      }
   }
 }
 

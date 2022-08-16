@@ -2,10 +2,13 @@
 #define TREASURE_H
 
 #include "SDL.h"
+#include "game.h"
+#include <random>
+#include <chrono>
 
-class Treasure {
+class Treasure :public Game {
     public:
-    Treasure();
+    Treasure(int x, int y);
     ~Treasure();
     //allocate on the heap
     //deallocate in the destructor
@@ -26,13 +29,37 @@ class Treasure {
 
 
     // getter and setter methods
-    void set_value();
-    void set_life();
+    void SetValue();
+    int GetValue();
+    void SetLife();
+    std::chrono::time_point<std::chrono::system_clock> GetLife();
+    bool CheckTreasure(); // check if treasure is still valid
+    void SetTreasure(bool x); // set treasure _exists to "true"
+    SDL_POINT GetCoord();
+    void SetCoord(int x, int y);
+
+    //bool _exists;
+    //SDL_POINT _treasure; // has an x and y private member
+    //int _treasure_value;
+    //long _treasure_life; // how long treasure will be present in milliseconds
 
     private:
+    // need to set up getters/setters to access and modify all these private member variables
+    bool _exists;
     int _treasure_value;
-    long _treasure_life; // how long treasure will be present in milliseconds
-    SDL_POINT _treasure;
+    std::chrono::time_point<std::chrono::system_clock> _treasure_life; // how long treasure will be present
+    SDL_POINT _treasure; // has an x and y private member
+
+    // inherited from class Game
+    /*
+    std::random_device dev;
+    std::mt19937 engine;
+    std::uniform_int_distribution<int> random_w;
+    std::uniform_int_distribution<int> random_h;
+    */
+
+    //void PlaceTreasure(); // define here or in game.cpp?
+    //void Update();
 
 };
 
