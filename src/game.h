@@ -8,8 +8,11 @@
 #include "snake.h"
 #include "treasure.h"
 
+//class Treasure;
+
 class Game {
  public:
+  Game();
   Game(std::size_t grid_width, std::size_t grid_height);
   ~Game(); // to delete treasure which was created on the heap
   void Run(Controller const &controller, Renderer &renderer,
@@ -19,16 +22,21 @@ class Game {
   void SpawnTreasure();
   void DeleteTreasure();
 
- private:
-  Snake snake;
-  SDL_Point food;
-  Treasure *treasure;
-
   std::random_device dev;
   std::mt19937 engine;
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
 
+ private:
+  Snake snake;
+  SDL_Point food;
+  Treasure *treasure;
+  /*
+  std::random_device dev;
+  std::mt19937 engine;
+  std::uniform_int_distribution<int> random_w;
+  std::uniform_int_distribution<int> random_h;
+  */
   int score{0};
 
   void PlaceFood();

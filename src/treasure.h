@@ -3,10 +3,12 @@
 
 #include "SDL.h"
 #include "game.h"
-#include <random>
-#include <chrono>
+//#include <random>
+//#include <chrono>
 
-class Treasure :public Game {
+class Game; // forward declaration
+
+class Treasure : public Game {
     public:
     Treasure(int x, int y);
     ~Treasure();
@@ -35,7 +37,7 @@ class Treasure :public Game {
     std::chrono::time_point<std::chrono::system_clock> GetLife();
     bool CheckTreasure(); // check if treasure is still valid
     void SetTreasure(bool x); // set treasure _exists to "true"
-    SDL_POINT GetCoord();
+    SDL_Point GetCoord();
     void SetCoord(int x, int y);
 
     //bool _exists;
@@ -48,7 +50,7 @@ class Treasure :public Game {
     bool _exists;
     int _treasure_value;
     std::chrono::time_point<std::chrono::system_clock> _treasure_life; // how long treasure will be present
-    SDL_POINT _treasure; // has an x and y private member
+    SDL_Point _treasure; // has an x and y private member
 
     // inherited from class Game
     /*

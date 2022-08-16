@@ -1,7 +1,7 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
-#include <thread>
+//#include <thread>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -12,6 +12,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
   //PlaceTreasure();
 }
+
+Game::Game() {}
 
 Game::~Game() {
   if(treasure != nullptr) // delete any dynamic memory to avoid memory leaks
