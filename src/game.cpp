@@ -56,7 +56,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     else if (timeSinceLastUpdate >= 3000 && treasure->CheckTreasure() == false) {
       treasure->SetTreasure(true);
       treasure->SetLife();
-      treasure->SetValue();
+      treasure->SetValue(GetScore());
     }
     */
 
@@ -127,7 +127,7 @@ void Game::SpawnTreasure() {
     // Check that the location is not occupied by a snake item or food before placing
     // treasure. If clear, spin up Treasure object on the heap
     if (!snake.SnakeCell(x, y) && (x != food.x && y !=food.y)) {
-      treasure = new Treasure(x, y);
+      treasure = new Treasure(x, y, GetScore());
       return; // note: in Udpate function, must check life of treasure, see if
       // if it needs to be removed
     }

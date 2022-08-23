@@ -1,17 +1,19 @@
 #include "treasure.h"
-//#include "game.h"
+#include "game.h"
 #include <random>
 #include <chrono>
 
+class Game; // forward declaration
 
-Treasure::Treasure(int x, int y) : _exists(true) {
+
+Treasure::Treasure(int x, int y, int score) : _exists(true) {
     // needs to happens in Game object to make sure it doesn't overlap with snake
     //x = random_w(engine); ?? 
     //y = random_h(engine); ??
     _treasure.x = x;
     _treasure.y = y;
 
-    std::uniform_int_distribution<int> distr(1, GetScore()); // treasure may be worth 1 up to current score
+    std::uniform_int_distribution<int> distr(1, score); // treasure may be worth 1 up to current score
     
     _treasure_value = distr(engine);
 
@@ -43,9 +45,9 @@ void Treasure::SetLife(){
 
 int Treasure::GetValue() { return _treasure_value; }
 
-void Treasure::SetValue() {
+void Treasure::SetValue(int score) {
 
-    std::uniform_int_distribution<int> distr(1, GetScore()); // treasure may be worth 1 up to current score
+    std::uniform_int_distribution<int> distr(1, score); // treasure may be worth 1 up to current score
     _treasure_value = distr(engine);
 
 }

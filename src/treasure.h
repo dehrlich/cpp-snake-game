@@ -6,11 +6,11 @@
 //#include <random>
 //#include <chrono>
 
-class Game; // forward declaration
+//class Game; // forward declaration
 
-class Treasure : public Game {
+class Treasure { // : public Game {
     public:
-    Treasure(int x, int y);
+    Treasure(int x, int y, int score);
     ~Treasure();
     //allocate on the heap
     //deallocate in the destructor
@@ -31,7 +31,7 @@ class Treasure : public Game {
 
 
     // getter and setter methods
-    void SetValue();
+    void SetValue(int score);
     int GetValue();
     void SetLife();
     std::chrono::time_point<std::chrono::system_clock> GetLife();
@@ -53,9 +53,9 @@ class Treasure : public Game {
     SDL_Point _treasure; // has an x and y private member
 
     // inherited from class Game
-    /*
     std::random_device dev;
     std::mt19937 engine;
+    /*
     std::uniform_int_distribution<int> random_w;
     std::uniform_int_distribution<int> random_h;
     */
