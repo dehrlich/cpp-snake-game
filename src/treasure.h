@@ -2,9 +2,9 @@
 #define TREASURE_H
 
 #include "SDL.h"
-#include "game.h"
-//#include <random>
-//#include <chrono>
+//#include "game.h"
+#include <random>
+#include <chrono>
 
 //class Game; // forward declaration
 
@@ -55,10 +55,8 @@ class Treasure { // : public Game {
     // inherited from class Game
     std::random_device dev;
     std::mt19937 engine;
-    /*
-    std::uniform_int_distribution<int> random_w;
-    std::uniform_int_distribution<int> random_h;
-    */
+    std::uniform_int_distribution<int> random_treasure_value;
+    std::uniform_int_distribution<int> random_treasure_life;
 
     //void PlaceTreasure(); // define here or in game.cpp?
     //void Update();

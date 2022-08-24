@@ -8,7 +8,7 @@
 #include "snake.h"
 #include "treasure.h"
 
-//class Treasure;
+class Treasure;
 
 class Game {
  public:
@@ -31,6 +31,7 @@ class Game {
   Snake snake;
   SDL_Point food;
   Treasure *treasure;
+  std::chrono::time_point<std::chrono::system_clock> lastUpdate;
   /*
   std::random_device dev;
   std::mt19937 engine;

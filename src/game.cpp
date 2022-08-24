@@ -8,7 +8,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)),
-      treasure(nullptr) {
+      treasure(nullptr),
+      lastUpdate(std::chrono::system_clock::now()) {
   PlaceFood();
   //PlaceTreasure();
 }
@@ -39,9 +40,9 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
-  std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+  //std::chrono::time_point<std::chrono::system_clock> lastUpdate;
   // init stop watch
-  lastUpdate = std::chrono::system_clock::now();
+  //lastUpdate = std::chrono::system_clock::now();
 
   while (running) {
     frame_start = SDL_GetTicks();
@@ -49,7 +50,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     //every 3 seconds, place some treasure
     long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
     
-    if (timeSinceLastUpdate >= 3000 && treasure == nullptr) { // spawn tresaure and notify game
+    if (timeSinceLastUpdate >= 3000 && treasure == nullptr) { // spawn treasure and notify game
       SpawnTreasure();
     }
     /*
@@ -62,19 +63,29 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
     if (treasure != nullptr && treasure->CheckTreasure() == true) {
       //check if treasure's life has timed out
-      long treasure_life = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - treasure->GetLife()).count();
+      long treasure_life = std::chrono::duration_cast<std::chrono::milliseconds>(treasure->GetLife() - std::chrono::system_clock::now()).count();
       if (treasure_life <= 0) {
         // treasure->SetTreasure(false);
         DeleteTreasure();
+        // Input, Update, Render - the main game loop.
+        controller.HandleInput(running, snake);
+        Update();
+        renderer.Render(snake, food);
+        lastUpdate = std::chrono::system_clock::now();
       }
-      else {
-      // Input, Update, Render - the main game loop.
-      controller.HandleInput(running, snake);
-      Update();
-      renderer.Render(snake, food, treasure->GetCoord()); //use overloaded Render func
+      else { // treasure is still alive and can be validly captured
+        // Input, Update, Render - the main game loop.
+        controller.HandleInput(running, snake);
+        Update();
+        if (treasure != nullptr) { // make sure the treasure object wasn't deleted on the heap due to being captured
+          renderer.Render(snake, food, treasure->GetCoord()); //use overloaded Render func
+        }
+        else {
+          renderer.Render(snake, food);
+        }
       }
     }
-    else {
+    else { // no current treasure object on the heap
       // Input, Update, Render - the main game loop.
       controller.HandleInput(running, snake);
       Update();
@@ -175,6 +186,7 @@ void Game::Update() {
         //treasure->SetTreasure(false); // signal to remove treasure from game board
         DeleteTreasure();
         snake.CutBody(); // cut snake body in half as reward
+        lastUpdate = std::chrono::system_clock::now();
       }
   }
 }

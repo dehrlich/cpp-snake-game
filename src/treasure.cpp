@@ -1,9 +1,9 @@
 #include "treasure.h"
-#include "game.h"
+//#include "game.h"
 #include <random>
 #include <chrono>
 
-class Game; // forward declaration
+//class Game; // forward declaration
 
 
 Treasure::Treasure(int x, int y, int score) : _exists(true) {
@@ -13,15 +13,15 @@ Treasure::Treasure(int x, int y, int score) : _exists(true) {
     _treasure.x = x;
     _treasure.y = y;
 
-    std::uniform_int_distribution<int> distr(1, score); // treasure may be worth 1 up to current score
+    std::uniform_int_distribution<int> random_treasure_value(1, (score + 1)); // treasure may be worth 1 up to current score
     
-    _treasure_value = distr(engine);
+    _treasure_value = random_treasure_value(engine);
 
     // treasure may appear on grid for 1-4 secs
     // using milliseconds for more granular timing
-    std::uniform_int_distribution<int> distr(1000, 4000);
+    std::uniform_int_distribution<int> random_treasure_life(1000, 4000);
 
-    _treasure_life = std::chrono::system_clock::now() + std::chrono::milliseconds(distr(engine));
+    _treasure_life = std::chrono::system_clock::now() + std::chrono::milliseconds(random_treasure_life(engine));
 }
 
 Treasure::~Treasure() {}
