@@ -1,7 +1,6 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
-//#include <thread>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -9,9 +8,9 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)),
       treasure(nullptr),
+      // init stop watch
       lastUpdate(std::chrono::system_clock::now()) {
   PlaceFood();
-  //PlaceTreasure();
 }
 
 Game::Game() {}
@@ -40,9 +39,6 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
-  //std::chrono::time_point<std::chrono::system_clock> lastUpdate;
-  // init stop watch
-  //lastUpdate = std::chrono::system_clock::now();
 
   while (running) {
     frame_start = SDL_GetTicks();
@@ -53,19 +49,11 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     if (timeSinceLastUpdate >= 3000 && treasure == nullptr) { // spawn treasure and notify game
       SpawnTreasure();
     }
-    /*
-    else if (timeSinceLastUpdate >= 3000 && treasure->CheckTreasure() == false) {
-      treasure->SetTreasure(true);
-      treasure->SetLife();
-      treasure->SetValue(GetScore());
-    }
-    */
 
     if (treasure != nullptr && treasure->CheckTreasure() == true) {
       //check if treasure's life has timed out
       long treasure_life = std::chrono::duration_cast<std::chrono::milliseconds>(treasure->GetLife() - std::chrono::system_clock::now()).count();
       if (treasure_life <= 0) {
-        // treasure->SetTreasure(false);
         DeleteTreasure();
         // Input, Update, Render - the main game loop.
         controller.HandleInput(running, snake);
@@ -133,6 +121,7 @@ void Game::PlaceFood() {
 void Game::SpawnTreasure() {
   int x, y;
   while (true) {
+    // needs to happens in Game object to make sure it doesn't overlap with snake
     x = random_w(engine);
     y = random_h(engine);
     // Check that the location is not occupied by a snake item or food before placing
@@ -145,22 +134,6 @@ void Game::SpawnTreasure() {
   }
 }
 
-/*
-void Game::PlaceTreasure() {
-  int x, y;
-  while (treasure->CheckTreasure()) {
-    x = random_w(engine);
-    y = random_h(engine);
-    // Check that the location is not occupied by a snake item or food before placing
-    // treasure. If clear, spin up Treasure object on the heap
-    if (!snake.SnakeCell(x, y) && (x != food.x && y !=food.y)) {
-      treasure = new Treasure(x, y);
-      return; // note: in Udpate function, must check life of treasure, see if
-      // if it needs to be removed
-    }
-  }
-}
-*/
 
 void Game::Update() {
   if (!snake.alive) return;
@@ -183,7 +156,6 @@ void Game::Update() {
   if (treasure != nullptr && treasure->CheckTreasure() == true) { // might not be necessary since already checked in Game::Run
       if (treasure->GetCoord().x == new_x && treasure->GetCoord().y == new_y) {
         score += treasure->GetValue();
-        //treasure->SetTreasure(false); // signal to remove treasure from game board
         DeleteTreasure();
         snake.CutBody(); // cut snake body in half as reward
         lastUpdate = std::chrono::system_clock::now();

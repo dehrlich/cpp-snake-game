@@ -71,8 +71,7 @@ void Snake::CutBody() {
   growing = false;
   // cut snake length in half as reward for finding the treasure
   body.erase(body.begin(), body.begin() + floor(body.size() / 2));
-  // body.resize(body.size()/2);
-  size -= floor(body.size() / 2) + 1;
+  size = body.size();
 }
 
 // Inefficient method to check if cell is occupied by snake.
