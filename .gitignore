@@ -2,6 +2,7 @@
 SnakeGame
 a.out
 settings.json
+launch.json
 *.o
 build/*
 *.json
